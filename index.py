@@ -3,6 +3,18 @@ loc = ("oceny.xlsx")
 wb = xlrd.open_workbook(loc)
 count_sheet = wb.nsheets
 
+
+def sort_dict (keys = [], values = []):
+    dict = {}
+    counter = 0
+    for item in keys:
+        dict.update({item: values[counter]})
+        counter += 1
+    counter = 0
+    for item_d in sorted(dict.values(), reverse = True):
+        print("{} - {}".format(item_d, list(dict.keys())[counter]))
+        counter += 1
+
 # Średnia ocen dla danego przedmiotu
 def avg_one (name):
     names = wb.sheet_names()
@@ -37,6 +49,22 @@ def avg_students_all ():
         for row_index in range(curr_sheet.nrows):
             sum += curr_sheet.cell(row_index, 1).value
     return round((sum / (rang * count_sheet)), 2)
+
+def rank_sub ():
+    sheet_names = wb.sheet_names()
+    for index in range(0, count_sheet):
+        curr_sheet = wb.sheet_by_index(index)
+        eval = []
+        name = []
+        print(sheet_names[index].upper())
+        print("________________________________")
+        for row_index in range(curr_sheet.nrows):
+            eval.append(curr_sheet.cell(row_index, 0).value)
+            name.append(curr_sheet.cell(row_index, 1).value)
+        sort_dict(eval, name)
+        print("________________________________\n")
+
+rank_sub()
 
 print("\nŚrednia ocen dla danego przedmiotu:")
 print("__________________________________")
