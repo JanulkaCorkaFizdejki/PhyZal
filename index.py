@@ -1,3 +1,4 @@
+import sys
 import xlrd
 loc = ("oceny.xlsx")
 wb = xlrd.open_workbook(loc)
@@ -10,10 +11,9 @@ def sort_dict (keys = [], values = []):
     for item in keys:
         dict.update({item: values[counter]})
         counter += 1
-    counter = 0
-    for item_d in sorted(dict.values(), reverse = True):
-        print("{} - {}".format(item_d, list(dict.keys())[counter]))
-        counter += 1
+    for k,v in sorted(dict.items(), key=lambda x:x[1], reverse=True):
+        print("{} - {}".format(k, v))
+
 
 # Średnia ocen dla danego przedmiotu
 def avg_one (name):
@@ -50,38 +50,84 @@ def avg_students_all ():
             sum += curr_sheet.cell(row_index, 1).value
     return round((sum / (rang * count_sheet)), 2)
 
-def rank_sub ():
+
+# Ranking ocen z poszczególnych przedmiotów
+def rank1 ():
+    print("\nRANIKING OCEN Z POSZCZEGÓLNYCH PRZEDNIOTÓW:")
     sheet_names = wb.sheet_names()
     for index in range(0, count_sheet):
         curr_sheet = wb.sheet_by_index(index)
+        names = []
         eval = []
-        name = []
-        print(sheet_names[index].upper())
-        print("________________________________")
-        for row_index in range(curr_sheet.nrows):
-            eval.append(curr_sheet.cell(row_index, 0).value)
-            name.append(curr_sheet.cell(row_index, 1).value)
-        sort_dict(eval, name)
-        print("________________________________\n")
+        for row_index in range(0, curr_sheet.nrows):
+            names.append(curr_sheet.cell(row_index, 0).value)
+            eval.append(curr_sheet.cell(row_index, 1).value)
+        print(sheet_names[index])
+        print("___________________")
+        sort_dict(names, eval)
 
-rank_sub()
+# Ranking średnich ocen z wszystkich przedmiotów
+def rankAll ():
+    print("\nRANIKING ŚREDNICH OCEN Z WSZYSTKICH PRZEDNIOTÓW:")
+    eval = []
+    names = []
+    for index in range(0, count_sheet):
+        curr_sheet = wb.sheet_by_index(index)
+        counter = 0
+        for row_index in range(0, curr_sheet.nrows):
+            if index == 0:
+                eval.append(curr_sheet.cell(row_index, 1).value)
+            elif index > 0 and index < count_sheet - 1:
+                eval[counter] = eval[counter] + curr_sheet.cell(row_index, 1).value
+            else:
+                eval[counter] = round((eval[counter] + curr_sheet.cell(row_index, 1).value) / count_sheet, 2)
+                names.append(curr_sheet.cell(row_index, 0).value)
+            counter += 1
+    sort_dict(names, eval)
 
-print("\nŚrednia ocen dla danego przedmiotu:")
-print("__________________________________")
-print("Matematyka: {}".format(avg_one("Matematyka")))
-print("Informatyka: {}".format(avg_one("Informatyka")))
-print("Język angileski: {}".format(avg_one("Język angielski")))
-print("__________________________________\n")
+print("\nSTART")
+print("---------------------------------")
+print("Lista przedmiotów: Matematyka, Informatyka, Język angileski")
+print("\nANALIZA WYNIKÓW NAUCZANIA")
+i = input("Czy chcesz poznać średnią ocen dla danego przedmiotu?[y/n] ")
+if (i == "y"):
+    p = input("Podaj nazwę przedmiotu: ")
+    pp = avg_one(p)
+    if pp > 1:
+        print("Przedmiot [{}] : {}".format(p, avg_one(p)))
+    else:
+        print("Studenci nie uczyli się tego przedmiotu!")
 
-print("\nŚrednia ocen z wszystkich przedmiotów dla danego studenta (wybrane nazwiska):")
-print("__________________________________")
-print("Albert Nowakowski: {}".format(avg_student("Albert Nowakowski")))
-print("Izabela Nowak: {}".format(avg_student("Izabela Nowak")))
-print("Onufry Nowak: {}".format(avg_student("Onufry Nowak")))
+i = input("Czy chcesz poznać średnią ocen danego studenta z wszystkich przedmiotów?[y/n] ")
+if (i == "y"):
+    n = input("Podaj imię i nazwisko studenta: ")
+    s = avg_student(n)
+    if s > 1:
+        print("Średnia ocen dla [{}] wynosi: {}".format(n, s))
+    else:
+        print("Taki student nie istnieje!")
 
-print("\nŚrednia ocen wszystkich uczniów dla wszystkich przedmiotów:")
-print("__________________________________")
-print(avg_students_all())
+i = input("Czy chcesz poznać średnią ocen wszystkich studentów z wszystkich przedmiotów?[y/n] ")
+if (i == "y"):
+    print("Średnia ocen wszystkich studentów z wszystkich przedmiotów wynosi: {}".format(avg_students_all()))
+
+i = input("Czy chcesz poznać ranking najlepszych studnetów pod wzglądem ocen z poszczególnych przedmiotów?[y/n] ")
+if (i == "y"):
+    rank1()
+
+i = input("Czy chcesz poznać ranking najlepszych studnetów pod wzglądem średniaj ocen z wszystkich przedmiotów?[y/n] ")
+if (i == "y"):
+    rankAll()
+
+print("*********************************************")
+print("KONIEC")
+print("*********************************************")
+
+
+
+
+
+
 
 
 
